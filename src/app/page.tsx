@@ -1,103 +1,136 @@
-import Image from "next/image";
+'use client';
 
-export default function Home() {
+import { useState, useEffect } from 'react';
+import Sidebar from '@/components/Sidebar';
+import Header from '@/components/Header';
+import StatsCards from '@/components/StatsCards';
+import GISMap from '@/components/GISMap';
+import AIRecommendations from '@/components/AIRecommendations';
+import CarbonCreditEstimator from '@/components/CarbonCreditEstimator';
+import MarketPrices from '@/components/MarketPrices';
+import RiskPrediction from '@/components/RiskPrediction';
+import BiodiversityChart from '@/components/BiodiversityChart';
+import {
+  fetchRainfall,
+  fetchTemperature,
+  fetchDeforestationAlerts,
+  fetchTreeLoss,
+  generateAIRecommendations,
+  fetchMarketPrices
+} from '@/utils/api';
+
+export default function Dashboard() {
+  const [activeSection, setActiveSection] = useState('dashboard');
+  const [selectedMapLayer, setSelectedMapLayer] = useState('treeLoss');
+  const [statsData, setStatsData] = useState([
+    { id: 'treeLoss', title: 'Tree Cover Loss', value: 'Loading...', trend: '', loading: true },
+    { id: 'rainfall', title: 'Rainfall (mm)', value: 'Loading...', trend: '', loading: true },
+    { id: 'temperature', title: 'Temperature (°C)', value: 'Loading...', trend: '', loading: true },
+    { id: 'deforestationAlerts', title: 'Deforestation Alerts', value: 'Loading...', trend: '', loading: true }
+  ]);
+  const [aiRecommendations, setAiRecommendations] = useState<string[]>([]);
+  const [marketPrices, setMarketPrices] = useState<Array<{crop: string, price: string}>>([]);
+  const [loading, setLoading] = useState(true);
+
+  const riskPredictions = [
+    { type: 'high' as const, title: 'High Risk', description: 'Flooding in Kisumu (next 7 days)' },
+    { type: 'medium' as const, title: 'Medium Risk', description: 'Drought in Turkana (next 30 days)' },
+    { type: 'low' as const, title: 'Low Risk', description: 'Pest outbreak in Embu (next 14 days)' }
+  ];
+
+  const loadData = async () => {
+    setLoading(true);
+    try {
+      const [treeLoss, rainfall, temperature, deforestationAlerts, aiRecs, prices] = await Promise.all([
+        fetchTreeLoss(),
+        fetchRainfall(),
+        fetchTemperature(),
+        fetchDeforestationAlerts(),
+        generateAIRecommendations(),
+        fetchMarketPrices()
+      ]);
+
+      setStatsData([
+        { id: 'treeLoss', title: 'Tree Cover Loss', value: `${treeLoss.loss} ha`, trend: treeLoss.trend, loading: false },
+        { id: 'rainfall', title: 'Rainfall (mm)', value: `${rainfall.rainfall} mm`, trend: rainfall.trend, loading: false },
+        { id: 'temperature', title: 'Temperature (°C)', value: `${temperature.temperature}°C`, trend: temperature.trend, loading: false },
+        { id: 'deforestationAlerts', title: 'Deforestation Alerts', value: `${deforestationAlerts.alerts}`, trend: deforestationAlerts.trend, loading: false }
+      ]);
+
+      setAiRecommendations(aiRecs);
+      setMarketPrices(prices);
+    } catch (error) {
+      console.error('Error loading dashboard data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const renderContent = () => {
+    switch (activeSection) {
+      case 'dashboard':
+        return (
+          <div className="main-content p-6">
+            <StatsCards data={statsData} />
+            <GISMap selectedLayer={selectedMapLayer} onLayerChange={setSelectedMapLayer} />
+            <AIRecommendations recommendations={aiRecommendations} loading={loading} />
+            <CarbonCreditEstimator />
+            <MarketPrices prices={marketPrices} loading={loading} />
+            <RiskPrediction predictions={riskPredictions} loading={loading} />
+            <BiodiversityChart />
+          </div>
+        );
+      case 'map':
+        return (
+          <div className="main-content p-6">
+            <GISMap selectedLayer={selectedMapLayer} onLayerChange={setSelectedMapLayer} />
+          </div>
+        );
+      case 'ai':
+        return (
+          <div className="main-content p-6">
+            <AIRecommendations recommendations={aiRecommendations} loading={loading} />
+            <RiskPrediction predictions={riskPredictions} loading={loading} />
+          </div>
+        );
+      case 'marketplace':
+        return (
+          <div className="main-content p-6">
+            <MarketPrices prices={marketPrices} loading={loading} />
+          </div>
+        );
+      case 'carbon':
+        return (
+          <div className="main-content p-6">
+            <CarbonCreditEstimator />
+            <BiodiversityChart />
+          </div>
+        );
+      default:
+        return (
+          <div className="main-content p-6">
+            <div className="bg-white rounded-lg shadow p-8 text-center">
+              <h2 className="text-2xl font-bold text-gray-800 mb-4">
+                {activeSection.charAt(0).toUpperCase() + activeSection.slice(1)}
+              </h2>
+              <p className="text-gray-600">This section is under development.</p>
+            </div>
+          </div>
+        );
+    }
+  };
+
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={190}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+    <div className="flex h-screen overflow-hidden">
+      <Sidebar activeSection={activeSection} onSectionChange={setActiveSection} />
+      <div className="flex-1 overflow-auto">
+        <Header onRefreshData={loadData} />
+        {renderContent()}
+      </div>
     </div>
   );
 }
