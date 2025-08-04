@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PLANET PULSE AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.7.1/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.7.1/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <style>
+        /* Disable text selection globally */
+        html, body, * {
+          user-select: none !important;
+          -webkit-user-select: none !important;
+          -ms-user-select: none !important;
+          -moz-user-select: none !important;
+        }
+      
+        /* Watermark overlay for images/maps */
+        .watermark-container {
+          position: relative;
+          display: inline-block;
+        }
+        .watermark-container img,
+        .watermark-container .map-visual {
+          display: block;
+        }
+        .watermark-overlay {
+          position: absolute;
+          top: 0; left: 0;
+          width: 100%; height: 100%;
+          pointer-events: none;
+          background: repeating-linear-gradient(
+            45deg,
+            rgba(74,143,41,0.08) 0px,
+            rgba(74,143,41,0.08) 1px,
+            transparent 1px,
+            transparent 40px
+          );
+        }
+        .watermark-text {
+          position: absolute;
+          top: 50%; left: 50%;
+          transform: translate(-50%, -50%) rotate(-20deg);
+          color: rgba(74,143,41,0.25);
+          font-size: 2rem;
+          font-family: 'Montserrat', sans-serif;
+          font-weight: bold;
+          pointer-events: none;
+          white-space: nowrap;
+          z-index: 2;
+          text-shadow: 1px 1px 2px #fff, 0 0 1px #4a8f29;
+        }
+        
+        .map-container { height: 400px; min-height: 300px; width: 100%; }
+        .sidebar { background: linear-gradient(135deg, #232526 0%, #414345 50%, #00c6ff 100%); color: #fff; }
+        .btn, button, select { background: linear-gradient(90deg, #232526 0%, #00c6ff 100%); color: #fff; border: none; }
+        .btn:hover, button:hover, select:hover { background: linear-gradient(90deg, #00c6ff 0%, #01270d 100%); color: #fff; }
+        .risk-high { background: linear-gradient(90deg, #ff512f 0%, #dd2476 100%); color: #fff; }
+        .risk-medium { background: linear-gradient(90deg, #00c6ff 0%, #0072ff 100%); color: #fff; }
+        .risk-low { background: linear-gradient(90deg, #43cea2 0%, #185a9d 100%); color: #fff; }
+        .bg-green-100 { background: linear-gradient(90deg, #43cea2 0%, #185a9d 100%) !important; }
+        .bg-yellow-100 { background: linear-gradient(90deg, #f7971e 0%, #ffd200 100%) !important; }
+        .bg-red-100 { background: linear-gradient(90deg, #ff512f 0%, #dd2476 100%) !important; }
+        .bg-blue-100 { background: linear-gradient(90deg, #00c6ff 0%, #0072ff 100%) !important; }
+        .bg-purple-500 { background: linear-gradient(90deg, #8e2de2 0%, #4a00e0 100%) !important; }
+        .bg-orange-500 { background: linear-gradient(90deg, #f7971e 0%, #ffd200 100%) !important; }
+        .bg-white { background: linear-gradient(90deg, #fff 0%, #e0eafc 100%) !important; }
+        .text-green-600, .text-green-800 { color: #43cea2 !important; }
+        .text-yellow-600, .text-yellow-800 { color: #ffd200 !important; }
+        .text-red-600, .text-red-800 { color: #ff512f !important; }
+        .text-blue-600, .text-blue-800 { color: #00c6ff !important; }
+        .text-purple-500 { color: #8e2de2 !important; }
+        .text-orange-500 { color: #f7971e !important; }
+        body.dark-mode { background: #181a20; color: #e0eafc; }
+        body.dark-mode .sidebar { background: linear-gradient(135deg, #181a20 0%, #232526 100%); color: #e0eafc; }
+        body.dark-mode .header,
+        body.dark-mode .bg-white.shadow-sm { background: linear-gradient(90deg, #232526 0%, #181a20 100%); }
+        body.dark-mode .bg-white,
+        body.dark-mode .prediction-card,
+        body.dark-mode .map-overlay,
+        body.dark-mode .heatmap-legend { background: linear-gradient(90deg, #232526 0%, #181a20 100%) !important; color: #e0eafc !important; }
+        body.dark-mode .btn, body.dark-mode button, body.dark-mode select { background: linear-gradient(90deg, #232526 0%, #181a20 100%); color: #e0eafc; }
+        body.dark-mode .btn:hover, body.dark-mode button:hover, body.dark-mode select:hover { background: linear-gradient(90deg, #181a20 0%, #232526 100%); color: #fff; }
+        /* Add more dark mode overrides as needed */
+
+        /* Make sure the sidebar overlays on mobile */
+        @media (max-width: 1023px) {
+  .sidebar {
+    position: fixed;
+    z-index: 50;
+    left: 0;
+    top: 0;
+    height: 100vh;
+    width: 80vw !important;
+    max-width: 320px;
+    transform: translateX(-100%);
+    transition: transform 0.3s;
+  }
+  .sidebar.open {
+    transform: translateX(0);
+  }
+  .sidebar + .flex-1 {
+    margin-left: 0 !important;
+  }
+  .sidebar-toggle-btn {
+    display: block !important;
+  }
+}
+@media (max-width: 767px) {
+  .p-6, .px-6, .py-4 {
+    padding: 1rem !important;
+  }
+  .main-content {
+    padding: 0.5rem !important;
+  }
+  .grid-cols-1, .md\:grid-cols-2, .lg\:grid-cols-4, .lg\:grid-cols-3, .lg\:grid-cols-2 {
+    grid-template-columns: 1fr !important;
+  }
+  .overflow-x-auto {
+    overflow-x: auto !important;
+  }
+  .map-container {
+    min-height: 200px !important;
+    height: 250px !important;
+  }
+}
+.sidebar-toggle-btn {
+  display: none;
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  z-index: 100;
+  background: #232526;
+  color: #00c6ff;
+  border-radius: 50%;
+  width: 44px;
+  height: 44px;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  border: none;
+}
+    </style>
+</head>
+<body class="bg-gray-100 font-sans">
+<div class="flex h-screen overflow-hidden">
+    <!-- Sidebar -->
+    <div class="sidebar w-64 flex-shrink-0 flex flex-col">
+        <div class="p-4 flex items-center">
+            <i class="fas fa-seedling text-2xl mr-3"></i>
+            <span class="sidebar-text text-xl font-bold">PLANET PULSE AI AI</span>
+        </div>
+        <div class="flex-grow overflow-y-auto">
+            <nav class="mt-6 flex flex-col gap-2">
+                <button id="btnDashboard" class="flex items-center px-2 py-3 rounded-lg bg-blue-700 focus:outline-none transition">
+                    <i class="fas fa-tachometer-alt mr-3"></i>
+                    <span class="sidebar-text">Dashboard</span>
+                </button>
+                <button id="btnMap" class="flex items-center px-2 py-3 rounded-lg hover:bg-blue-700 cursor-pointer focus:outline-none transition">
+                    <i class="fas fa-globe-africa mr-3"></i>
+                    <span class="sidebar-text">GIS Map</span>
+                </button>
+                <button id="btnAI" class="flex items-center px-2 py-3 rounded-lg hover:bg-blue-700 cursor-pointer focus:outline-none transition">
+                    <i class="fas fa-robot mr-3"></i>
+                    <span class="sidebar-text">AI Recommendations</span>
+                </button>
+                <button id="btnMarketplace" class="flex items-center px-2 py-3 rounded-lg hover:bg-blue-700 cursor-pointer focus:outline-none transition">
+                    <i class="fas fa-store mr-3"></i>
+                    <span class="sidebar-text">Marketplace</span>
+                </button>
+                <button id="btnFarmerPortal" class="flex items-center px-2 py-3 rounded-lg hover:bg-blue-700 cursor-pointer focus:outline-none transition">
+                    <i class="fas fa-user-farmer mr-3"></i>
+                    <span class="sidebar-text">Farmer Portal</span>
+                </button>
+                <button id="btnCarbon" class="flex items-center px-2 py-3 rounded-lg hover:bg-blue-700 cursor-pointer focus:outline-none transition">
+                    <i class="fas fa-leaf mr-3"></i>
+                    <span class="sidebar-text">Carbon Credits</span>
+                </button>
+                <button id="btnFeedback" class="flex items-center px-2 py-3 rounded-lg hover:bg-blue-700 cursor-pointer focus:outline-none transition">
+                    <i class="fas fa-comment-dots mr-3"></i>
+                    <span class="sidebar-text">Feedback</span>
+                </button>
+                <button id="btnThemeToggle" class="flex items-center px-2 py-3 rounded-lg hover:bg-blue-700 cursor-pointer focus:outline-none transition">
+                    <i class="fas fa-adjust mr-3"></i>
+                    <span class="sidebar-text">Light/Dark Mode</span>
+                </button>
+            </nav>
+        </div>
+        <div class="p-4 border-t border-blue-700">
+            <div class="flex items-center">
+                <img src="images/slides/KIJANIHUB LOGO.jpg" alt="User" class="w-8 h-8 rounded-full mr-2">
+                <div class="sidebar-text">
+                    <div class="text-sm font-medium">Climate AI</div>
+                    <div class="text-xs text-blue-200">KENYA</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="flex-1 overflow-auto">
+        <!-- Header -->
+        <header class="bg-white shadow-sm">
+            <div class="px-6 py-4 flex items-center justify-between">
+                <div class="flex items-center">
+                    <h1 class="text-xl font-semibold text-gray-800">Climate-Smart Agriculture & Environment Dashboard</h1>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button id="refreshData" class="p-2 rounded-full bg-blue-100 text-blue-600 hover:bg-blue-200">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+      
+
+            <!-- Stats Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                <div class="bg-white rounded-lg shadow p-6">
+                    <p class="text-gray-500 text-sm">Tree Cover Loss</p>
+                    <h3 id="treeLoss" class="text-2xl font-bold text-gray-800">Loading...</h3>
+                    <p id="treeLossTrend" class="text-sm mt-1"></p>
+                </div>
+                <div class="bg-white rounded-lg shadow p-6">
+                    <p class="text-gray-500 text-sm">Rainfall (mm)</p>
+                    <h3 id="rainfall" class="text-2xl font-bold text-gray-800">Loading...</h3>
+                    <p id="rainfallTrend" class="text-sm mt-1"></p>
+                </div>
+                <div class="bg-white rounded-lg shadow p-6">
+                    <p class="text-gray-500 text-sm">Temperature (°C)</p>
+                    <h3 id="temperature" class="text-2xl font-bold text-gray-800">Loading...</h3>
+                    <p id="temperatureTrend" class="text-sm mt-1"></p>
+                </div>
+                <div class="bg-white rounded-lg shadow p-6">
+                    <p class="text-gray-500 text-sm">Deforestation Alerts</p>
+                    <h3 id="deforestationAlerts" class="text-2xl font-bold text-gray-800">Loading...</h3>
+                    <p id="deforestationTrend" class="text-sm mt-1"></p>
+                </div>
+            </div>
+
+            <!-- GIS Map -->
+            <div class="bg-white rounded-lg shadow p-4 mb-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-lg font-semibold text-gray-800">GIS Interactive Map</h2>
+                    <div class="flex space-x-2">
+                        <select id="mapLayerSelect" class="border rounded px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="treeLoss">Tree Loss</option>
+                            <option value="rainfall">Rainfall</option>
+                            <option value="temperature">Temperature</option>
+                            <option value="landUse">Land Use</option>
+                            <option value="biodiversity">Biodiversity</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="map" class="map-container"></div>
+            </div>
+
+            <!-- AI Recommendations -->
+            <div class="bg-white rounded-lg shadow p-4 mb-6">
+                <h2 class="text-lg font-semibold text-gray-800 mb-2">AI Recommendations</h2>
+                <ul class="list-disc ml-6 text-gray-700" id="aiRecommendations">
+                    <li>Loading recommendations...</li>
+                </ul>
+            </div>
+
+            
+            <!-- Carbon Credit Estimator -->
+            <div class="bg-white rounded-lg shadow p-4 mb-6">
+                <h2 class="text-lg font-semibold text-gray-800 mb-2">Carbon Credit Estimator</h2>
+                <form id="carbonForm" class="space-y-2">
+                    <input type="number" placeholder="Number of Trees" class="border rounded px-3 py-1 w-full" required>
+                    <button type="submit" class="btn w-full">Estimate Credits</button>
+                </form>
+                <div id="carbonEstimate" class="text-sm mt-2"></div>
+            </div>
+
+         
+
+            <!-- Live Market Prices -->
+            <div class="bg-white rounded-lg shadow p-4 mb-6">
+                <h2 class="text-lg font-semibold text-gray-800 mb-2">Live Market Prices</h2>
+                <div id="marketPrices" class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm"></div>
+            </div>
+
+            <!-- AI Risk Prediction -->
+            <div class="bg-white rounded-lg shadow p-4 mb-6">
+                <h2 class="text-lg font-semibold text-gray-800 mb-2">AI Risk Prediction</h2>
+                <div id="riskPrediction" class="flex flex-col md:flex-row gap-4">
+                    <div class="prediction-card risk-high p-4 rounded-lg flex-1">
+                        <b>High Risk:</b> Flooding in Kisumu (next 7 days)
+                    </div>
+                    <div class="prediction-card risk-medium p-4 rounded-lg flex-1">
+                        <b>Medium Risk:</b> Drought in Turkana (next 30 days)
+                    </div>
+                    <div class="prediction-card risk-low p-4 rounded-lg flex-1">
+                        <b>Low Risk:</b> Pest outbreak in Embu (next 14 days)
+                    </div>
+                </div>
+            </div>
+
+            <!-- Biodiversity Chart -->
+            <div class="bg-white rounded-lg shadow p-4 mb-6">
+                <h2 class="text-lg font-semibold text-gray-800 mb-2">Biodiversity Index (Mockup)</h2>
+                <canvas id="biodiversityChart" height="80"></canvas>
+            </div>
+
+
+<script>
+    // --- Modular API Integration Points (real APIs) ---
+
+    // 1. NASA GIBS (Global Imagery Browse Services) - Satellite imagery (tiles)
+    // Docs: https://wiki.earthdata.nasa.gov/display/GIBS
+    // Example: Use as a Leaflet tile layer (see mapLayers.nasa below)
+
+    // 2. Open-Meteo (Free Weather API, no key needed)
+    // Docs: https://open-meteo.com/en/docs
+    async function fetchRainfall() {
+        // Example: Nairobi, Kenya
+        const url = "https://api.open-meteo.com/v1/forecast?latitude=-1.286389&longitude=36.817223&hourly=precipitation";
+        const res = await fetch(url);
+        const data = await res.json();
+        // Get today's total rainfall (sum of hourly)
+        const rainfall = data.hourly?.precipitation?.slice(0, 24).reduce((a, b) => a + b, 0) || 0;
+        return { rainfall: Math.round(rainfall), trend: '+0%' };
+    }
+
+    // 3. Open-Meteo (Temperature, no key needed)
+    async function fetchTemperature() {
+        const url = "https://api.open-meteo.com/v1/forecast?latitude=-1.286389&longitude=36.817223&hourly=temperature_2m";
+        const res = await fetch(url);
+        const data = await res.json();
+        // Get current temperature (first hour)
+        const temperature = data.hourly?.temperature_2m?.[0] || 0;
+        return { temperature: Math.round(temperature), trend: '+0°C' };
+    }
+
+    // 4. Global Forest Watch (GFW) - Deforestation Alerts (requires registration for API key)
+    // Docs: https://data-api.globalforestwatch.org/
+    // For demo, use mockup or public dataset
+    async function fetchDeforestationAlerts() {
+        // Example: Use mock data or fetch from GFW if you have an API key
+        // const url = "https://data-api.globalforestwatch.org/dataset/umd_tree_cover_loss/latest/query?sql=SELECT%20COUNT(*)%20FROM%20data";
+        // const res = await fetch(url);
+        // const data = await res.json();
+        // return { alerts: data?.data?.[0]?.count || 12, trend: '-1%' };
+        return { alerts: 12, trend: '-1%' }; // fallback mock
+    }
+
+    // 5. Tree Cover Loss (Global Forest Watch public CSV, demo)
+    // https://data.globalforestwatch.org/datasets/gfw::tree-cover-loss/explore
+    async function fetchTreeLoss() {
+        // For demo, use mock data or fetch CSV and parse
+        return { loss: 1234, trend: '+5%' };
+    }
+
+    // 6. FAO API (Food and Agriculture Organization) - Crop stats
+    // Docs: https://data.apps.fao.org/catalog/organization/fao
+    // Example: https://fenixservices.fao.org/faostat/api/v1/en/data/QC?area=110&item=15&year=2021
+    // You can fetch crop production data for Kenya (area=110), Maize (item=15)
+    async function fetchFAOCropStats() {
+        const url = "https://fenixservices.fao.org/faostat/api/v1/en/data/QC?area=110&item=15&year=2021";
+        const res = await fetch(url);
+        const data = await res.json();
+        return data; // customize as needed
+    }
+
+    // 7. GBIF (Biodiversity, no key needed for basic queries)
+    // Docs: https://www.gbif.org/developer/summary
+    async function fetchBiodiversity() {
+        // Example: Number of species in Kenya
+        const url = "https://api.gbif.org/v1/occurrence/search?country=KE&limit=0";
+        const res = await fetch(url);
+        const data = await res.json();
+        return { speciesCount: data.count || 0 };
+    }
+
+    // 8. iNaturalist (Biodiversity, no key needed)
+    // Docs: https://www.inaturalist.org/pages/api+reference
+    async function fetchINatObservations() {
+        const url = "https://api.inaturalist.org/v1/observations?place_id=795&per_page=1";
+        const res = await fetch(url);
+        const data = await res.json();
+        return { totalObservations: data.total_results || 0 };
+    }
+
+    // --- Dashboard Data Loader ---
+    async function loadDashboardData() {
+        const treeLoss = await fetchTreeLoss();
+        document.getElementById('treeLoss').textContent = treeLoss.loss + ' ha';
+        document.getElementById('treeLossTrend').textContent = 'Trend: ' + treeLoss.trend;
+
+        const rainfall = await fetchRainfall();
+        document.getElementById('rainfall').textContent = rainfall.rainfall + ' mm';
+        document.getElementById('rainfallTrend').textContent = 'Trend: ' + rainfall.trend;
+
+        const temperature = await fetchTemperature();
+        document.getElementById('temperature').textContent = temperature.temperature + '°C';
+        document.getElementById('temperatureTrend').textContent = 'Trend: ' + temperature.trend;
+
+        const defAlerts = await fetchDeforestationAlerts();
+        document.getElementById('deforestationAlerts').textContent = defAlerts.alerts;
+        document.getElementById('deforestationTrend').textContent = 'Trend: ' + defAlerts.trend;
+    }
+
+    // --- GIS Map Initialization ---
+    let map, mapLayers = {};
+    function initMap() {
+        map = L.map('map').setView([0, 37], 6);
+        mapLayers.base = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+    }
+    function updateMapLayer(layerType) {
+        Object.values(mapLayers).forEach(layer => {
+            if (layer !== mapLayers.base && map.hasLayer(layer)) map.removeLayer(layer);
+        });
+        if (layerType === 'treeLoss') {
+            mapLayers.treeLoss = L.circle([0, 37], { radius: 50000, color: 'red' }).addTo(map);
+        } else if (layerType === 'rainfall') {
+            mapLayers.rainfall = L.circle([0.5, 37.5], { radius: 40000, color: 'blue' }).addTo(map);
+        } else if (layerType === 'temperature') {
+            mapLayers.temperature = L.circle([-0.5, 36.5], { radius: 40000, color: 'orange' }).addTo(map);
+        } else if (layerType === 'landUse') {
+            mapLayers.landUse = L.rectangle([[0.2, 36.8], [0.8, 37.2]], { color: 'green', weight: 2 }).addTo(map);
+        } else if (layerType === 'biodiversity') {
+            mapLayers.biodiversity = L.circle([0, 37], { radius: 30000, color: 'purple' }).addTo(map);
+        }
+    }
+
+    // --- AI Recommendations (Free/Public Data Enhanced) ---
+
+    // Example: Use real-time weather, crop, and biodiversity data to generate dynamic recommendations.
+    // You can expand this logic to use more APIs or ML models as needed.
+
+    async function updateAIRecommendations() {
+        // Fetch latest weather, crop, and biodiversity data
+        const [rain, temp, fao, gbif, inat] = await Promise.all([
+            fetchRainfall(),
+            fetchTemperature(),
+            fetchFAOCropStats(),
+            fetchBiodiversity(),
+            fetchINatObservations()
+        ]);
+
+        // Example logic for recommendations
+        const recs = [];
+
+        // Weather-based
+        if (rain.rainfall < 10) {
+            recs.push("💧 Low rainfall detected. Consider supplemental irrigation this week.");
+        } else {
+            recs.push("🌦️ Adequate rainfall forecasted. Monitor for waterlogging in lowlands.");
+        }
+
+        if (temp.temperature > 30) {
+            recs.push("🔥 High temperatures expected. Mulch crops to reduce soil evaporation.");
+        } else if (temp.temperature < 18) {
+            recs.push("❄️ Cool weather ahead. Delay planting heat-loving crops.");
+        }
+
+        // Crop production (FAO)
+        if (fao && fao.data && fao.data.length > 0) {
+            const maize = fao.data.find(d => d.item === "Maize");
+            if (maize && maize.value < 1000000) {
+                recs.push("🌽 Maize yields are below average. Consider improved seed varieties.");
+            } else {
+                recs.push("🌾 Maize production is stable. Diversify with legumes for soil health.");
+            }
+        }
+
+        // Biodiversity (GBIF/iNaturalist)
+        if (gbif.speciesCount < 100000) {
+            recs.push("🦋 Biodiversity is low. Plant native trees and reduce pesticide use.");
+        } else {
+            recs.push("🌱 Biodiversity is healthy. Maintain current conservation practices.");
+        }
+
+        if (inat.totalObservations < 50000) {
+            recs.push("🔍 Encourage community to record more wildlife observations on iNaturalist.");
+        }
+
+        // General
+        recs.push("🛑 Watch for deforestation alerts and report illegal logging.");
+        recs.push("📈 Check live market prices before selling your harvest.");
+
+        document.getElementById('aiRecommendations').innerHTML = recs.map(r => `<li>${r}</li>`).join('');
+    }
+
+ 
+
+    // --- Carbon Credit Estimator (Enhanced, with public data reference) ---
+
+    /*
+     * This estimator uses a simple formula:
+     *  - Each mature tree absorbs about 21 kg CO2/year (source: UN FAO, EPA)
+     *  - 1 carbon credit = 1 metric ton (1,000 kg) CO2
+     *  - So, credits = (trees * 21) / 1000 per year
+     * You can enhance this by fetching real tree/biomass data from APIs like:
+     * - Global Forest Watch: https://data-api.globalforestwatch.org/
+     * - Open Foris SEPAL: https://openforis.org/tools/sepal.html
+     * - FAO Forest Resources Assessment: https://fra-data.fao.org/
+     * For now, we use the above formula for a quick estimate.
+     */
+
+    document.getElementById('carbonForm').onsubmit = function(e) {
+        e.preventDefault();
+        const trees = parseInt(this.elements[0].value, 10);
+        // 21 kg CO2/year per tree, 1 credit = 1000 kg CO2
+        const credits = (trees * 21) / 1000;
+        document.getElementById('carbonEstimate').textContent =
+            `Estimated credits per year: ${credits.toFixed(2)} (based on ${trees} trees)`;
+        this.reset();
+    };
+
+ 
+    // --- Live Market Prices (Free/Public Data) ---
+
+    // Example using a free commodity API (commodities-api.com offers a free tier with registration)
+    // For demo, we'll use a public mockup. For real data, register and use your API key as shown below.
+
+    // Option 1: Mockup (no API key needed, always works)
+    function updateMarketPrices() {
+        const prices = [
+            { crop: "Maize", price: "KSh 3,200/90kg" },
+            { crop: "Beans", price: "KSh 7,000/90kg" },
+            { crop: "Wheat", price: "KSh 4,500/90kg" },
+            { crop: "Sorghum", price: "KSh 2,800/90kg" }
+        ];
+        document.getElementById('marketPrices').innerHTML = prices.map(
+            p => `<div class="bg-blue-100 rounded p-2 flex flex-col items-center">
+                    <span class="font-bold">${p.crop}</span>
+                    <span>${p.price}</span>
+                  </div>`
+        ).join('');
+    }
+
+    // Option 2: Real API (requires free API key, uncomment and use if you have one)
+    /*
+    async function updateMarketPrices() {
+        const apiKey = 'YOUR_API_KEY'; // Get from https://commodities-api.com/
+        const url = `https://commodities-api.com/api/latest?access_key=${apiKey}&base=KES&symbols=MAIZE,BEANS,WHEAT,SORGHUM`;
+        const res = await fetch(url);
+        const data = await res.json();
+        const prices = [
+            { crop: "Maize", price: `KSh ${data.data.rates.MAIZE}/90kg` },
+            { crop: "Beans", price: `KSh ${data.data.rates.BEANS}/90kg` },
+            { crop: "Wheat", price: `KSh ${data.data.rates.WHEAT}/90kg` },
+            { crop: "Sorghum", price: `KSh ${data.data.rates.SORGHUM}/90kg` }
+        ];
+        document.getElementById('marketPrices').innerHTML = prices.map(
+            p => `<div class="bg-blue-100 rounded p-2 flex flex-col items-center">
+                    <span class="font-bold">${p.crop}</span>
+                    <span>${p.price}</span>
+                  </div>`
+        ).join('');
+    }
+    */
+    // --- Biodiversity Chart (Mockup) ---
+    function renderBiodiversityChart() {
+        const ctx = document.getElementById('biodiversityChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
+                datasets: [{
+                    label: 'Biodiversity Index',
+                    data: [72, 74, 70, 68, 73, 75, 77],
+                    borderColor: '#8e2de2',
+                    backgroundColor: 'rgba(142,45,226,0.1)',
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                plugins: { legend: { display: false } },
+                scales: { y: { min: 60, max: 80 } }
+            }
+        });
+    }
+
+    // --- Sidebar Sign Out Button ---
+    // Add this to your sidebar nav (HTML):
+    // <button id="btnSignOut" class="flex items-center px-2 py-3 rounded-lg hover:bg-blue-700 cursor-pointer focus:outline-none transition">
+    //     <i class="fas fa-sign-out-alt mr-3"></i>
+    //     <span class="sidebar-text">Sign Out</span>
+    // </button>
+    document.getElementById('btnSignOut')?.addEventListener('click', function() {
+        alert('Signed out! (Implement real sign-out logic here)');
+        // window.location.href = '/login'; // Example redirect
+    });
+
+    // --- On DOMContentLoaded, call new features ---
+    document.addEventListener('DOMContentLoaded', function() {
+        loadDashboardData();
+        initMap();
+        updateAIRecommendations();
+        updateMarketPrices();
+        renderBiodiversityChart();
+        document.getElementById('mapLayerSelect').addEventListener('change', function() {
+            updateMapLayer(this.value);
+        });
+        document.getElementById('btnThemeToggle').onclick = function() {
+            document.body.classList.toggle('dark-mode');
+            if (document.body.classList.contains('dark-mode')) {
+                localStorage.setItem('theme', 'dark');
+            } else {
+                localStorage.setItem('theme', 'light');
+            }
+        };
+        if (localStorage.getItem('theme') === 'dark') {
+            document.body.classList.add('dark-mode');
+        }
+        document.getElementById('refreshData').addEventListener('click', loadDashboardData);
+    });
+</script>
+</body>
+</html>
