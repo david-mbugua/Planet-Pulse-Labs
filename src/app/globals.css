@@ -1,270 +1,212 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* Tailwind v4 Theme Configuration */
+@theme {
+  /* UNEP/Environmental Color Palette */
+  --color-unep-50: #E8F8FF;
+  --color-unep-100: #B8EDFF;
+  --color-unep-200: #87E2FF;
+  --color-unep-300: #57D7FF;
+  --color-unep-400: #26CCFF;
+  --color-unep-500: #00AEEF; /* Primary UNEP Blue */
+  --color-unep-600: #0099D6;
+  --color-unep-700: #0084BD;
+  --color-unep-800: #006FA4;
+  --color-unep-900: #005A8B;
+
+  --color-environmental-50: #F0F9ED;
+  --color-environmental-100: #D8F0D1;
+  --color-environmental-200: #B8E6A8;
+  --color-environmental-300: #98DC7F;
+  --color-environmental-400: #7FD15B;
+  --color-environmental-500: #6ABF4B; /* Environmental Green */
+  --color-environmental-600: #5AA63F;
+  --color-environmental-700: #4A8D33;
+  --color-environmental-800: #3A7427;
+  --color-environmental-900: #2A5B1B;
+
+  --color-earth-50: #FFFCF0;
+  --color-earth-100: #FFF5D1;
+  --color-earth-200: #FFEBB3;
+  --color-earth-300: #FFE194;
+  --color-earth-400: #FFD75C;
+  --color-earth-500: #FFC629; /* Warm Earth */
+  --color-earth-600: #E6B225;
+  --color-earth-700: #CC9E21;
+  --color-earth-800: #B38A1D;
+  --color-earth-900: #997619;
+
+  /* Dark Mode Specific Colors */
+  --color-dark-bg: #0F172A;
+  --color-dark-surface: #1E293B;
+  --color-dark-text: #F8FAFC;
+  --color-dark-border: #334155;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* Base styles */
+* {
+  box-sizing: border-box;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-roboto), system-ui, -apple-system, sans-serif;
+  line-height: 1.6;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Disable text selection globally */
-html, body, * {
-  user-select: none !important;
-  -webkit-user-select: none !important;
-  -ms-user-select: none !important;
-  -moz-user-select: none !important;
+/* Modern card styles */
+.card {
+  @apply bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg border border-gray-200 dark:border-gray-700 transition-all duration-300;
 }
 
-/* Watermark overlay for images/maps */
-.watermark-container {
-  position: relative;
-  display: inline-block;
+.card:hover {
+  @apply shadow-xl -translate-y-1;
 }
 
-.watermark-container img,
-.watermark-container .map-visual {
-  display: block;
+/* Button styles */
+.btn {
+  @apply font-medium rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2;
 }
 
-.watermark-overlay {
-  position: absolute;
-  top: 0; 
-  left: 0;
-  width: 100%; 
-  height: 100%;
-  pointer-events: none;
-  background: repeating-linear-gradient(
-    45deg,
-    rgba(74,143,41,0.08) 0px,
-    rgba(74,143,41,0.08) 1px,
-    transparent 1px,
-    transparent 40px
-  );
+.btn-primary {
+  @apply bg-blue-500 hover:bg-blue-600 text-white focus:ring-blue-500;
 }
 
-.watermark-text {
-  position: absolute;
-  top: 50%; 
-  left: 50%;
-  transform: translate(-50%, -50%) rotate(-20deg);
-  color: rgba(74,143,41,0.25);
-  font-size: 2rem;
-  font-family: 'Montserrat', sans-serif;
-  font-weight: bold;
-  pointer-events: none;
-  white-space: nowrap;
-  z-index: 2;
-  text-shadow: 1px 1px 2px #fff, 0 0 1px #4a8f29;
+.btn-secondary {
+  @apply bg-gray-200 hover:bg-gray-300 text-gray-800 focus:ring-gray-500;
 }
 
-.map-container { 
-  height: 400px; 
-  min-height: 300px; 
-  width: 100%; 
+/* Navigation styles */
+.navbar {
+  @apply bg-white/95 dark:bg-gray-900/95 backdrop-blur-lg border-b border-gray-200 dark:border-gray-700;
 }
 
-.sidebar { 
-  background: linear-gradient(135deg, #232526 0%, #414345 50%, #00c6ff 100%); 
-  color: #fff; 
+.sidebar {
+  @apply bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700;
 }
 
-.btn, button, select { 
-  background: linear-gradient(90deg, #232526 0%, #00c6ff 100%); 
-  color: #fff; 
-  border: none; 
+.sidebar-item {
+  @apply flex items-center px-4 py-3 rounded-lg mx-2 transition-all duration-200 text-gray-700 dark:text-gray-300;
 }
 
-.btn:hover, button:hover, select:hover { 
-  background: linear-gradient(90deg, #00c6ff 0%, #01270d 100%); 
-  color: #fff; 
+.sidebar-item:hover {
+  @apply bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400;
 }
 
-.risk-high { 
-  background: linear-gradient(90deg, #ff512f 0%, #dd2476 100%); 
-  color: #fff; 
+.sidebar-item.active {
+  @apply bg-blue-500 text-white;
 }
 
-.risk-medium { 
-  background: linear-gradient(90deg, #00c6ff 0%, #0072ff 100%); 
-  color: #fff; 
+.sidebar-icon {
+  @apply w-5 h-5 mr-3 transition-colors duration-200;
 }
 
-.risk-low { 
-  background: linear-gradient(90deg, #43cea2 0%, #185a9d 100%); 
-  color: #fff; 
+/* Component styles */
+.metric-card {
+  @apply bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-all duration-300;
 }
 
-.bg-green-100 { 
-  background: linear-gradient(90deg, #43cea2 0%, #185a9d 100%) !important; 
+.metric-value {
+  @apply text-2xl font-bold text-gray-900 dark:text-gray-100;
 }
 
-.bg-yellow-100 { 
-  background: linear-gradient(90deg, #f7971e 0%, #ffd200 100%) !important; 
+.metric-label {
+  @apply text-sm font-medium text-gray-600 dark:text-gray-400;
 }
 
-.bg-red-100 { 
-  background: linear-gradient(90deg, #ff512f 0%, #dd2476 100%) !important; 
+.chart-container {
+  @apply bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg border border-gray-200 dark:border-gray-700;
 }
 
-.bg-blue-100 { 
-  background: linear-gradient(90deg, #00c6ff 0%, #0072ff 100%) !important; 
+/* Trend indicators */
+.trend-positive {
+  @apply text-green-600 dark:text-green-400;
 }
 
-.bg-purple-500 { 
-  background: linear-gradient(90deg, #8e2de2 0%, #4a00e0 100%) !important; 
+.trend-negative {
+  @apply text-red-600 dark:text-red-400;
 }
 
-.bg-orange-500 { 
-  background: linear-gradient(90deg, #f7971e 0%, #ffd200 100%) !important; 
+.trend-neutral {
+  @apply text-gray-600 dark:text-gray-400;
 }
 
-.bg-white { 
-  background: linear-gradient(90deg, #fff 0%, #e0eafc 100%) !important; 
+/* Loading animations */
+.skeleton {
+  @apply animate-pulse bg-gray-200 dark:bg-gray-700 rounded;
 }
 
-.text-green-600, .text-green-800 { 
-  color: #43cea2 !important; 
+/* Focus styles for accessibility */
+.focus-ring {
+  @apply focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2;
 }
 
-.text-yellow-600, .text-yellow-800 { 
-  color: #ffd200 !important; 
-}
-
-.text-red-600, .text-red-800 { 
-  color: #ff512f !important; 
-}
-
-.text-blue-600, .text-blue-800 { 
-  color: #00c6ff !important; 
-}
-
-.text-purple-500 { 
-  color: #8e2de2 !important; 
-}
-
-.text-orange-500 { 
-  color: #f7971e !important; 
-}
-
-/* Dark mode styles */
-body.dark-mode { 
-  background: #181a20; 
-  color: #e0eafc; 
-}
-
-body.dark-mode .sidebar { 
-  background: linear-gradient(135deg, #181a20 0%, #232526 100%); 
-  color: #e0eafc; 
-}
-
-body.dark-mode .header,
-body.dark-mode .bg-white.shadow-sm { 
-  background: linear-gradient(90deg, #232526 0%, #181a20 100%); 
-}
-
-body.dark-mode .bg-white,
-body.dark-mode .prediction-card,
-body.dark-mode .map-overlay,
-body.dark-mode .heatmap-legend { 
-  background: linear-gradient(90deg, #232526 0%, #181a20 100%) !important; 
-  color: #e0eafc !important; 
-}
-
-body.dark-mode .btn, 
-body.dark-mode button, 
-body.dark-mode select { 
-  background: linear-gradient(90deg, #232526 0%, #181a20 100%); 
-  color: #e0eafc; 
-}
-
-body.dark-mode .btn:hover, 
-body.dark-mode button:hover, 
-body.dark-mode select:hover { 
-  background: linear-gradient(90deg, #181a20 0%, #232526 100%); 
-  color: #fff; 
-}
-
-/* Mobile sidebar styles */
-@media (max-width: 1023px) {
+/* Mobile responsiveness */
+@media (max-width: 768px) {
   .sidebar {
-    position: fixed;
-    z-index: 50;
-    left: 0;
-    top: 0;
-    height: 100vh;
-    width: 80vw !important;
-    max-width: 320px;
-    transform: translateX(-100%);
-    transition: transform 0.3s;
+    @apply fixed top-0 left-0 h-full w-80 z-50 -translate-x-full transition-transform duration-300;
   }
   
   .sidebar.open {
-    transform: translateX(0);
+    @apply translate-x-0;
   }
   
-  .sidebar + .flex-1 {
-    margin-left: 0 !important;
-  }
-  
-  .sidebar-toggle-btn {
-    display: block !important;
+  .mobile-overlay {
+    @apply fixed inset-0 bg-black/50 z-40;
   }
 }
 
-@media (max-width: 767px) {
-  .p-6, .px-6, .py-4 {
-    padding: 1rem !important;
+/* Animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
   }
-  
-  .main-content {
-    padding: 0.5rem !important;
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
-  
-  .grid-cols-1, .md\:grid-cols-2, .lg\:grid-cols-4, .lg\:grid-cols-3, .lg\:grid-cols-2 {
-    grid-template-columns: 1fr !important;
-  }
-  
-  .overflow-x-auto {
-    overflow-x: auto !important;
-  }
-  
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.6s ease-out forwards;
+}
+
+.stagger-animation > * {
+  opacity: 0;
+  animation: fadeInUp 0.6s ease-out forwards;
+}
+
+.stagger-animation > *:nth-child(1) { animation-delay: 0.1s; }
+.stagger-animation > *:nth-child(2) { animation-delay: 0.2s; }
+.stagger-animation > *:nth-child(3) { animation-delay: 0.3s; }
+.stagger-animation > *:nth-child(4) { animation-delay: 0.4s; }
+.stagger-animation > *:nth-child(5) { animation-delay: 0.5s; }
+.stagger-animation > *:nth-child(6) { animation-delay: 0.6s; }
+
+/* Text gradient utility */
+.text-gradient-unep {
+  @apply bg-gradient-to-r from-blue-500 to-green-500 bg-clip-text text-transparent;
+}
+
+/* Map container - Essential for Leaflet maps */
+.map-container {
+  height: 400px;
+  min-height: 400px;
+  width: 100%;
+  position: relative;
+  background: #f3f4f6;
+  border-radius: 0.75rem;
+  overflow: hidden;
+}
+
+@media (max-width: 768px) {
   .map-container {
-    min-height: 200px !important;
-    height: 250px !important;
+    height: 300px;
+    min-height: 300px;
   }
-}
-
-.sidebar-toggle-btn {
-  display: none;
-  position: fixed;
-  top: 1rem;
-  left: 1rem;
-  z-index: 100;
-  background: #232526;
-  color: #00c6ff;
-  border-radius: 50%;
-  width: 44px;
-  height: 44px;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.5rem;
-  border: none;
 }

@@ -21,14 +21,22 @@ interface GISMapProps {
 
 export default function GISMap({ selectedLayer, onLayerChange }: GISMapProps) {
   return (
-    <div className="bg-white rounded-lg shadow p-4 mb-6">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold text-gray-800">GIS Interactive Map</h2>
+    <div className="chart-container mb-6">
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center space-x-3">
+          <div className="p-3 bg-gradient-to-r from-green-500 to-blue-500 rounded-lg">
+            <i className="fas fa-globe-africa text-white text-xl"></i>
+          </div>
+          <div>
+            <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">GIS Interactive Map</h2>
+            <p className="text-sm text-gray-600 dark:text-gray-400">Real-time environmental data visualization</p>
+          </div>
+        </div>
         <div className="flex space-x-2">
           <select 
             value={selectedLayer}
             onChange={(e) => onLayerChange(e.target.value)}
-            className="border rounded px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="treeLoss">Tree Loss</option>
             <option value="rainfall">Rainfall</option>

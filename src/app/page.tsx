@@ -22,6 +22,7 @@ import {
 export default function Dashboard() {
   const [activeSection, setActiveSection] = useState('dashboard');
   const [selectedMapLayer, setSelectedMapLayer] = useState('treeLoss');
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [statsData, setStatsData] = useState([
     { id: 'treeLoss', title: 'Tree Cover Loss', value: 'Loading...', trend: '', loading: true },
     { id: 'rainfall', title: 'Rainfall (mm)', value: 'Loading...', trend: '', loading: true },
@@ -74,50 +75,109 @@ export default function Dashboard() {
     switch (activeSection) {
       case 'dashboard':
         return (
-          <div className="main-content p-6">
+          <div className="p-6 space-y-6 stagger-animation">
+            <div className="mb-6">
+              <h1 className="text-2xl font-bold text-neutral-900 dark:text-neutral-100 mb-2">
+                Climate Dashboard
+              </h1>
+              <p className="text-neutral-600 dark:text-neutral-400">
+                Real-time environmental monitoring and agricultural insights
+              </p>
+            </div>
             <StatsCards data={statsData} />
             <GISMap selectedLayer={selectedMapLayer} onLayerChange={setSelectedMapLayer} />
-            <AIRecommendations recommendations={aiRecommendations} loading={loading} />
-            <CarbonCreditEstimator />
-            <MarketPrices prices={marketPrices} loading={loading} />
-            <RiskPrediction predictions={riskPredictions} loading={loading} />
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <AIRecommendations recommendations={aiRecommendations} loading={loading} />
+              <RiskPrediction predictions={riskPredictions} loading={loading} />
+            </div>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <CarbonCreditEstimator />
+              <MarketPrices prices={marketPrices} loading={loading} />
+            </div>
             <BiodiversityChart />
           </div>
         );
       case 'map':
         return (
-          <div className="main-content p-6">
+          <div className="p-6">
+            <div className="mb-6">
+              <h1 className="text-2xl font-bold text-neutral-900 dark:text-neutral-100 mb-2">
+                GIS Mapping
+              </h1>
+              <p className="text-neutral-600 dark:text-neutral-400">
+                Interactive satellite imagery and environmental data visualization
+              </p>
+            </div>
             <GISMap selectedLayer={selectedMapLayer} onLayerChange={setSelectedMapLayer} />
           </div>
         );
       case 'ai':
         return (
-          <div className="main-content p-6">
-            <AIRecommendations recommendations={aiRecommendations} loading={loading} />
-            <RiskPrediction predictions={riskPredictions} loading={loading} />
+          <div className="p-6 space-y-6">
+            <div className="mb-6">
+              <h1 className="text-2xl font-bold text-neutral-900 dark:text-neutral-100 mb-2">
+                AI Insights
+              </h1>
+              <p className="text-neutral-600 dark:text-neutral-400">
+                Machine learning predictions and smart recommendations
+              </p>
+            </div>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <AIRecommendations recommendations={aiRecommendations} loading={loading} />
+              <RiskPrediction predictions={riskPredictions} loading={loading} />
+            </div>
           </div>
         );
       case 'marketplace':
         return (
-          <div className="main-content p-6">
+          <div className="p-6">
+            <div className="mb-6">
+              <h1 className="text-2xl font-bold text-neutral-900 dark:text-neutral-100 mb-2">
+                Agricultural Marketplace
+              </h1>
+              <p className="text-neutral-600 dark:text-neutral-400">
+                Real-time crop prices and trading opportunities
+              </p>
+            </div>
             <MarketPrices prices={marketPrices} loading={loading} />
           </div>
         );
       case 'carbon':
         return (
-          <div className="main-content p-6">
-            <CarbonCreditEstimator />
-            <BiodiversityChart />
+          <div className="p-6 space-y-6">
+            <div className="mb-6">
+              <h1 className="text-2xl font-bold text-neutral-900 dark:text-neutral-100 mb-2">
+                Carbon Credits
+              </h1>
+              <p className="text-neutral-600 dark:text-neutral-400">
+                Environmental impact tracking and carbon credit opportunities
+              </p>
+            </div>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <CarbonCreditEstimator />
+              <BiodiversityChart />
+            </div>
           </div>
         );
       default:
         return (
-          <div className="main-content p-6">
-            <div className="bg-white rounded-lg shadow p-8 text-center">
-              <h2 className="text-2xl font-bold text-gray-800 mb-4">
+          <div className="p-6">
+            <div className="card p-8 text-center">
+              <div className="w-16 h-16 bg-gradient-to-r from-unep-500 to-environmental-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i className="fas fa-tools text-white text-2xl"></i>
+              </div>
+              <h2 className="text-2xl font-bold text-neutral-900 dark:text-neutral-100 mb-4">
                 {activeSection.charAt(0).toUpperCase() + activeSection.slice(1)}
               </h2>
-              <p className="text-gray-600">This section is under development.</p>
+              <p className="text-neutral-600 dark:text-neutral-400 mb-6">
+                This section is currently under development. Check back soon for new features.
+              </p>
+              <button 
+                onClick={() => setActiveSection('dashboard')}
+                className="btn btn-primary px-6 py-2"
+              >
+                Back to Dashboard
+              </button>
             </div>
           </div>
         );
@@ -125,11 +185,21 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="flex h-screen overflow-hidden">
-      <Sidebar activeSection={activeSection} onSectionChange={setActiveSection} />
-      <div className="flex-1 overflow-auto">
-        <Header onRefreshData={loadData} />
-        {renderContent()}
+    <div className="flex h-screen bg-neutral-50 dark:bg-dark-bg">
+      <Sidebar 
+        activeSection={activeSection} 
+        onSectionChange={setActiveSection}
+        isOpen={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+      />
+      <div className="flex-1 flex flex-col overflow-hidden lg:ml-80">
+        <Header 
+          onRefreshData={loadData} 
+          onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
+        />
+        <main className="flex-1 overflow-auto bg-gray-50 dark:bg-gray-900">
+          {renderContent()}
+        </main>
       </div>
     </div>
   );
