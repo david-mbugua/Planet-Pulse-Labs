@@ -7,11 +7,20 @@ import {
   fetchKituiTemperature,
   fetchFAOCropStats,
   fetchBiodiversity,
-  fetchINatObservations
+  fetchINatObservations,
 } from '../api/environmentalData';
 
+interface StatCardData {
+  id: string;
+  title: string;
+  value: string;
+  trend: string;
+  scope?: string;
+  loading?: boolean;
+}
+
 export default function DashboardStats() {
-  const [data, setData] = useState<any[]>([]);
+  const [data, setData] = useState<StatCardData[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -74,8 +83,16 @@ export default function DashboardStats() {
     fetchData();
   }, []);
 
-  // Map loading prop if you want skeletons
-  const statsWithLoading = data.map(stat => ({ ...stat, loading }));
+  // Optionally show loading skeletons until data arrives
+  const statsWithLoading = data.length === 0 && loading
+    ? [
+        { id: 'rainfall', title: 'Rainfall', value: '', trend: '', loading: true },
+        { id: 'temperature', title: 'Temperature', value: '', trend: '', loading: true },
+        { id: 'fao_maize', title: 'Maize Yield', value: '', trend: '', loading: true },
+        { id: 'biodiversity', title: 'Biodiversity (GBIF)', value: '', trend: '', loading: true },
+        { id: 'inat', title: 'iNaturalist Observations', value: '', trend: '', loading: true },
+      ]
+    : data.map(stat => ({ ...stat, loading }));
 
   return <StatsCards data={statsWithLoading} />;
 }
