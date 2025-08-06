@@ -5,6 +5,7 @@ interface StatCardData {
   title: string;
   value: string;
   trend: string;
+  scope?: string; // <-- NEW: spatial label, e.g., "Kenya-wide"
   loading?: boolean;
 }
 
@@ -23,6 +24,12 @@ export default function StatsCards({ data }: StatsCardsProps) {
         return 'fas fa-thermometer-half';
       case 'deforestationAlerts':
         return 'fas fa-exclamation-triangle';
+      case 'fao_maize':
+        return 'fas fa-leaf';
+      case 'biodiversity':
+        return 'fas fa-bug';
+      case 'inat':
+        return 'fas fa-paw';
       default:
         return 'fas fa-chart-line';
     }
@@ -56,6 +63,12 @@ export default function StatsCards({ data }: StatsCardsProps) {
         return 'bg-orange-500';
       case 'deforestationAlerts':
         return 'bg-red-500';
+      case 'fao_maize':
+        return 'bg-green-500';
+      case 'biodiversity':
+        return 'bg-yellow-500';
+      case 'inat':
+        return 'bg-purple-500';
       default:
         return 'bg-blue-500';
     }
@@ -93,9 +106,14 @@ export default function StatsCards({ data }: StatsCardsProps) {
               </div>
 
               {/* Main value */}
-              <div className="metric-value mb-2">
-                {stat.value}
-              </div>
+              <div className="metric-value mb-1">{stat.value}</div>
+              
+              {/* Scope label */}
+              {stat.scope && (
+                <div className="text-xs text-gray-500 mb-2 italic">
+                  {stat.scope}
+                </div>
+              )}
 
               {/* Trend indicator */}
               {stat.trend && (
@@ -109,7 +127,7 @@ export default function StatsCards({ data }: StatsCardsProps) {
                 </div>
               )}
 
-              {/* Progress bar for visual indicator */}
+              {/* Progress bar */}
               <div className="mt-4 h-1 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
                 <div 
                   className={`h-full rounded-full transition-all duration-1000 ${getProgressColor(stat.id)}`}
