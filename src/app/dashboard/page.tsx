@@ -4,7 +4,12 @@ import { useState, useEffect } from 'react';
 import Sidebar from '@/components/Sidebar';
 import Header from '@/components/Header';
 import StatsCards from '@/components/StatsCards';
-import GISMap from '@/components/GISMap';
+import dynamic from 'next/dynamic';
+
+const MapComponent = dynamic(() => import('@/components/MapComponent'), {
+  ssr: false,
+  loading: () => <div className="h-96 bg-gray-100 dark:bg-gray-700 animate-pulse rounded-lg flex items-center justify-center text-gray-500">Loading map...</div>
+});
 import AIRecommendations from '@/components/AIRecommendations';
 import CarbonCreditEstimator from '@/components/CarbonCreditEstimator';
 import MarketPrices from '@/components/MarketPrices';
@@ -86,7 +91,29 @@ export default function Dashboard() {
               </p>
             </div>
             <StatsCards data={statsData} />
-            <GISMap selectedLayer={selectedMapLayer} onLayerChange={setSelectedMapLayer} />
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                  Environmental Layers
+                </h3>
+                <select
+                  value={selectedMapLayer}
+                  onChange={(e) => setSelectedMapLayer(e.target.value)}
+                  className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg
+                           bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100
+                           focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="treeLoss">Tree Loss</option>
+                  <option value="rainfall">Rainfall</option>
+                  <option value="temperature">Temperature</option>
+                  <option value="landUse">Land Use</option>
+                  <option value="biodiversity">Biodiversity</option>
+                </select>
+              </div>
+              <div className="h-96">
+                <MapComponent selectedLayer={selectedMapLayer} />
+              </div>
+            </div>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <AIRecommendations recommendations={aiRecommendations} loading={loading} />
               <RiskPrediction predictions={riskPredictions} loading={loading} />
@@ -109,7 +136,29 @@ export default function Dashboard() {
                 Interactive satellite imagery and environmental data visualization
               </p>
             </div>
-            <GISMap selectedLayer={selectedMapLayer} onLayerChange={setSelectedMapLayer} />
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                  Environmental Layers
+                </h3>
+                <select
+                  value={selectedMapLayer}
+                  onChange={(e) => setSelectedMapLayer(e.target.value)}
+                  className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg
+                           bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100
+                           focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="treeLoss">Tree Loss</option>
+                  <option value="rainfall">Rainfall</option>
+                  <option value="temperature">Temperature</option>
+                  <option value="landUse">Land Use</option>
+                  <option value="biodiversity">Biodiversity</option>
+                </select>
+              </div>
+              <div className="h-96">
+                <MapComponent selectedLayer={selectedMapLayer} />
+              </div>
+            </div>
           </div>
         );
       case 'ai':

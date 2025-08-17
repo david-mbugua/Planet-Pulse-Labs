@@ -7,7 +7,6 @@ import {
   getSellerOrders, 
   getSellerStats, 
   addProduct, 
-  updateProduct, 
   deleteProduct,
   updateOrderStatus,
   getCurrentUser

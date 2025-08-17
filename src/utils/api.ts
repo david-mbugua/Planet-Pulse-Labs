@@ -24,7 +24,6 @@ export interface INaturalistData {
 }
 
 // --- Kitui Centroid and Bounding Box ---
-const KITUI_CENTROID = { lat: -1.3744, lng: 38.0106 };
 // Rough bounding box for Kitui County (adjust as needed)
 const KITUI_BBOX = {
   minLat: -1.8,
@@ -93,7 +92,6 @@ export async function fetchBiodiversity(): Promise<BiodiversityData> {
 export async function fetchINatObservations(): Promise<INaturalistData> {
   try {
     // For true Kitui-specific, use bounding box, but iNat may not have granular data for Kitui
-    const bbox = `${KITUI_BBOX.minLng},${KITUI_BBOX.minLat},${KITUI_BBOX.maxLng},${KITUI_BBOX.maxLat}`;
     const url = `https://api.inaturalist.org/v1/observations?nelat=${KITUI_BBOX.maxLat}&nelng=${KITUI_BBOX.maxLng}&swlat=${KITUI_BBOX.minLat}&swlng=${KITUI_BBOX.minLng}&per_page=1`;
     const res = await fetch(url);
     const data = await res.json();

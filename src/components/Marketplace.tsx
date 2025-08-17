@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { User, CartItem, Order } from '@/types/ecommerce';
+import { User, CartItem, Order, Product } from '@/types/ecommerce';
 import { getCurrentUser, loginUser, logoutUser, getCart } from '@/utils/ecommerce-api';
 import ProductCatalog from './ProductCatalog';
 import ShoppingCart from './ShoppingCart';
@@ -73,6 +73,13 @@ export default function Marketplace({ initialView = 'catalog' }: MarketplaceProp
 
   const handleCartUpdate = (newCart: CartItem[]) => {
     setCartItems(newCart);
+  };
+
+  const handleAddToCart = (_product: Product, _quantity: number) => {
+    // This function will be called by ProductCatalog
+    // The addToCart function from the API will handle updating the cart internally
+    // We need to refresh the cart items from the API after adding
+    setCartItems(getCart());
   };
 
   const handleCheckout = () => {
@@ -308,7 +315,7 @@ export default function Marketplace({ initialView = 'catalog' }: MarketplaceProp
           </div>
         </div>
       ) : currentView === 'catalog' ? (
-        <ProductCatalog onAddToCart={handleCartUpdate} />
+        <ProductCatalog onAddToCart={handleAddToCart} />
       ) : currentView === 'seller-dashboard' ? (
         <SellerDashboard />
       ) : (

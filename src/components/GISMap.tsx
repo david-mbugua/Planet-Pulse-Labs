@@ -9,16 +9,16 @@ import 'leaflet/dist/leaflet.css';
 
 // --- Kitui boundary polygon (demo, use real GeoJSON in production) ---
 const kituiBoundary = {
-  "type": "Feature",
+  "type": "Feature" as const,
   "properties": { "name": "Kitui" },
   "geometry": {
-    "type": "Polygon",
+    "type": "Polygon" as const,
     "coordinates": [[
       [37.8, -1.0], [38.4, -1.0], [38.4, -1.8], [37.8, -1.8], [37.8, -1.0]
     ]]
   }
 };
-const KITUI_CENTER = [-1.3744, 38.0106];
+const KITUI_CENTER: [number, number] = [-1.3744, 38.0106];
 
 // --- Simulated tree data ---
 const trees = [
@@ -96,7 +96,7 @@ export default function KituiMap() {
       </div>
       <div className="mt-6">
         <h3 className="font-bold text-lg mb-1">Mapped Trees in Kitui: {treeCount}</h3>
-        <CarbonCreditEstimator treeCount={treeCount} />
+        <CarbonCreditEstimator />
         <div className="mt-3 text-xs text-gray-700">
           <b>Data transparency:</b> Weather data is from Kitui centroid. National statistics will be labeled “Kenya-wide”.
         </div>

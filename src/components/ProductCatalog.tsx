@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Product, ProductCategory } from '@/types/ecommerce';
 import { getProducts, addToCart } from '@/utils/ecommerce-api';
 
@@ -28,11 +28,7 @@ export default function ProductCatalog({ onAddToCart }: ProductCatalogProps) {
   const [sortBy, setSortBy] = useState<'name' | 'price' | 'rating'>('name');
   const [addingToCart, setAddingToCart] = useState<string | null>(null);
 
-  useEffect(() => {
-    loadProducts();
-  }, [selectedCategory, searchQuery]);
-
-  const loadProducts = async () => {
+  const loadProducts = useCallback(async () => {
     setLoading(true);
     try {
       const fetchedProducts = await getProducts(
@@ -45,7 +41,11 @@ export default function ProductCatalog({ onAddToCart }: ProductCatalogProps) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [selectedCategory, searchQuery]);
+
+  useEffect(() => {
+    loadProducts();
+  }, [loadProducts]);
 
   const handleAddToCart = async (product: Product, quantity: number = 1) => {
     setAddingToCart(product.id);

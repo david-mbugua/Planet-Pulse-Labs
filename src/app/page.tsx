@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function LandingPage() {
   return (
@@ -62,7 +63,7 @@ export default function LandingPage() {
               <div className="absolute -inset-8 bg-gradient-to-tr from-blue-500/10 to-green-500/10 blur-3xl rounded-full" />
               <div className="relative card p-0 overflow-hidden">
                 <div className="aspect-[16/10] bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
-                  <img src="/globe.svg" alt="Globe" className="h-32 w-32 opacity-80" />
+                  <Image src="/globe.svg" alt="Globe" className="h-32 w-32 opacity-80" width={128} height={128} />
                 </div>
                 <div className="grid grid-cols-3 divide-x divide-gray-100 dark:divide-gray-700">
                   <div className="p-4">

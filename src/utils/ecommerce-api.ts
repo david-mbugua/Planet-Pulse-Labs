@@ -5,7 +5,7 @@ import { Product, User, Order, CartItem, OrderStatus, SellerStats, Address } fro
 // Mock data storage (in production, this would be a database)
 let products: Product[] = [];
 let users: User[] = [];
-let orders: Order[] = [];
+const orders: Order[] = [];
 let currentUser: User | null = null;
 let cart: CartItem[] = [];
 
@@ -408,7 +408,7 @@ export async function loginUser(email: string, role: 'farmer' | 'customer'): Pro
     currentUser = user;
     cart = []; // Clear cart on login
   }
-  return user;
+  return user || null;
 }
 
 export function logoutUser(): void {

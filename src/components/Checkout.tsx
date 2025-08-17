@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { CartItem, Address, Order } from '@/types/ecommerce';
-import { getCart, getCartTotal, createOrder, getCurrentUser } from '@/utils/ecommerce-api';
+import { Address, Order } from '@/types/ecommerce';
+import { getCart, getCartTotal, createOrder } from '@/utils/ecommerce-api';
 
 interface CheckoutProps {
   isOpen: boolean;
@@ -261,7 +261,7 @@ export default function Checkout({ isOpen, onClose, onOrderComplete }: CheckoutP
                       <option value="Mombasa">Mombasa</option>
                       <option value="Machakos">Machakos</option>
                       <option value="Kajiado">Kajiado</option>
-                      <option value="Murang'a">Murang'a</option>
+                      <option value="Murang'a">Murang&apos;a</option>
                       <option value="Nyeri">Nyeri</option>
                       <option value="Kericho">Kericho</option>
                     </select>

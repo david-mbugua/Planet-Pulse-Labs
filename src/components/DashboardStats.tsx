@@ -8,7 +8,7 @@ import {
   fetchFAOCropStats,
   fetchBiodiversity,
   fetchINatObservations,
-} from '../api/environmentalData';
+} from '@/utils/api';
 
 interface StatCardData {
   id: string;
