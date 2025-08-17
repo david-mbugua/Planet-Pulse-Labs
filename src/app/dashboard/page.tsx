@@ -8,6 +8,7 @@ import GISMap from '@/components/GISMap';
 import AIRecommendations from '@/components/AIRecommendations';
 import CarbonCreditEstimator from '@/components/CarbonCreditEstimator';
 import MarketPrices from '@/components/MarketPrices';
+import Marketplace from '@/components/Marketplace';
 import RiskPrediction from '@/components/RiskPrediction';
 import BiodiversityChart from '@/components/BiodiversityChart';
 import {
@@ -131,15 +132,7 @@ export default function Dashboard() {
       case 'marketplace':
         return (
           <div className="p-6">
-            <div className="mb-6">
-              <h1 className="text-2xl font-bold text-neutral-900 dark:text-neutral-100 mb-2">
-                Agricultural Marketplace
-              </h1>
-              <p className="text-neutral-600 dark:text-neutral-400">
-                Real-time crop prices and trading opportunities
-              </p>
-            </div>
-            <MarketPrices prices={marketPrices} loading={loading} />
+            <Marketplace />
           </div>
         );
       case 'carbon':
