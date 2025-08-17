@@ -106,3 +106,43 @@ export async function fetchINatObservations(): Promise<INaturalistData> {
     return { totalObservations: 45000, scope: "Kenya-wide" }; // fallback
   }
 }
+
+// --- Convenience wrappers and stubs for dashboard ---
+// These functions provide the simple shapes expected by the dashboard UI.
+
+export async function fetchRainfall(): Promise<RainfallData> {
+  return fetchKituiRainfall();
+}
+
+export async function fetchTemperature(): Promise<TemperatureData> {
+  return fetchKituiTemperature();
+}
+
+export async function fetchTreeLoss(): Promise<{ loss: number; trend: string }> {
+  // Placeholder: replace with real GFW/GLAD integration
+  return { loss: 1240, trend: '↑ 3.2% vs last month' };
+}
+
+export async function fetchDeforestationAlerts(): Promise<{ alerts: number; trend: string }> {
+  // Placeholder: replace with real GLAD/RADD alert counts
+  return { alerts: 86, trend: '↓ 1.1% vs last week' };
+}
+
+export async function generateAIRecommendations(): Promise<string[]> {
+  // Placeholder AI copy. Can be replaced with a real model or API.
+  return [
+    '<b>Soil moisture conservation:</b> Use mulching in dry zones to reduce evapotranspiration.',
+    '<b>Agroforestry mix:</b> Plant <i>Grevillea</i> and fruit trees to boost carbon stock and diversify income.',
+    '<b>Water harvesting:</b> Install small farm ponds ahead of forecast rainfall spikes.'
+  ];
+}
+
+export async function fetchMarketPrices(): Promise<Array<{ crop: string; price: string }>> {
+  // Placeholder prices; replace with a real market feed
+  return [
+    { crop: 'Maize', price: 'KES 3,200 / 90kg' },
+    { crop: 'Beans', price: 'KES 8,500 / 90kg' },
+    { crop: 'Wheat', price: 'KES 4,800 / 90kg' },
+    { crop: 'Sorghum', price: 'KES 3,600 / 90kg' }
+  ];
+}

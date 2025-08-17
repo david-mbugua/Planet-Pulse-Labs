@@ -4,7 +4,8 @@ import { useEffect, useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, GeoJSON } from 'react-leaflet';
 import CarbonCreditEstimator from './CarbonCreditEstimator';
 import * as turf from '@turf/turf';
-import { fetchKituiRainfall, fetchKituiTemperature } from '../api/environmentalData'; // Adjust import path as needed
+import { fetchKituiRainfall, fetchKituiTemperature } from '@/utils/api';
+import 'leaflet/dist/leaflet.css';
 
 // --- Kitui boundary polygon (demo, use real GeoJSON in production) ---
 const kituiBoundary = {
@@ -59,7 +60,8 @@ export default function KituiMap() {
 
   return (
     <div>
-      <MapContainer center={KITUI_CENTER} zoom={9} style={{ height: "500px", width: "100%" }}>
+      <div className="map-container">
+        <MapContainer center={KITUI_CENTER} zoom={9} style={{ height: '100%', width: '100%' }}>
         <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
         <GeoJSON data={kituiBoundary} style={{ color: 'blue', weight: 2, fillOpacity: 0.07 }} />
         {/* Tree Markers with Carbon Info */}
@@ -90,7 +92,8 @@ export default function KituiMap() {
             </div>
           </Popup>
         </Marker>
-      </MapContainer>
+        </MapContainer>
+      </div>
       <div className="mt-6">
         <h3 className="font-bold text-lg mb-1">Mapped Trees in Kitui: {treeCount}</h3>
         <CarbonCreditEstimator treeCount={treeCount} />
