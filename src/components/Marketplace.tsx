@@ -75,10 +75,11 @@ export default function Marketplace({ initialView = 'catalog' }: MarketplaceProp
     setCartItems(newCart);
   };
 
-  const handleAddToCart = (_product: Product, _quantity: number) => {
+  const handleAddToCart = (product: Product, quantity: number) => {
     // This function will be called by ProductCatalog
     // The addToCart function from the API will handle updating the cart internally
     // We need to refresh the cart items from the API after adding
+    console.log('Adding to cart:', product.name, 'quantity:', quantity);
     setCartItems(getCart());
   };
 

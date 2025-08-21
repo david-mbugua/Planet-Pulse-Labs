@@ -3,21 +3,25 @@
 import ArcGISEmbed from './ArcGISEmbed';
 
 type MapComponentProps = {
-  selectedLayer: 'carbon' | 'climate' | 'biodiversity';
+  selectedLayer: 'treeLoss' | 'rainfall' | 'temperature' | 'landUse' | 'biodiversity';
 };
 
 // Add your ArcGIS StoryMap/Web Map URLs here
 const URLS: Record<MapComponentProps['selectedLayer'], string> = {
-  carbon:
-    'https://storymaps.arcgis.com/stories/YOUR_STORYMAP_ID#carbon',  // replace with real link
-  climate:
-    'https://storymaps.arcgis.com/stories/YOUR_STORYMAP_ID#climate', // replace with real link
+  treeLoss:
+    'https://storymaps.arcgis.com/stories/YOUR_STORYMAP_ID#treeLoss',  // replace with real link
+  rainfall:
+    'https://storymaps.arcgis.com/stories/YOUR_STORYMAP_ID#rainfall', // replace with real link
+  temperature:
+    'https://storymaps.arcgis.com/stories/YOUR_STORYMAP_ID#temperature', // replace with real link
+  landUse:
+    'https://storymaps.arcgis.com/stories/YOUR_STORYMAP_ID#landUse', // replace with real link
   biodiversity:
     'https://storymaps.arcgis.com/stories/YOUR_STORYMAP_ID#biodiversity', // replace with real link
 };
 
 export default function MapComponent({ selectedLayer }: MapComponentProps) {
-  const url = URLS[selectedLayer] ?? URLS.climate;
+  const url = URLS[selectedLayer] ?? URLS.treeLoss;
 
   return (
     <div className="w-full">
