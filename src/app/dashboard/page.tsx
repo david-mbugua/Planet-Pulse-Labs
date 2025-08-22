@@ -91,8 +91,8 @@ export default function Dashboard() {
               </p>
             </div>
             <StatsCards data={statsData} />
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-              <div className="flex items-center justify-between mb-4">
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-6">
+              <div className="flex items-center justify-between mb-6">
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
                   Environmental Layers
                 </h3>
@@ -111,7 +111,7 @@ export default function Dashboard() {
                   <option value="biodiversity">Biodiversity</option>
                 </select>
               </div>
-              <div className="h-96">
+              <div className="w-full overflow-hidden rounded-lg" style={{ height: '600px' }}>
                 <MapComponent selectedLayer={selectedMapLayer} />
               </div>
             </div>
@@ -138,7 +138,7 @@ export default function Dashboard() {
               </p>
             </div>
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-              <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center justify-between mb-6">
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
                   Environmental Layers
                 </h3>
@@ -157,7 +157,7 @@ export default function Dashboard() {
                   <option value="biodiversity">Biodiversity</option>
                 </select>
               </div>
-              <div className="h-96">
+              <div className="w-full overflow-hidden rounded-lg" style={{ height: '700px' }}>
                 <MapComponent selectedLayer={selectedMapLayer} />
               </div>
             </div>

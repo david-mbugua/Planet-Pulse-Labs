@@ -34,16 +34,18 @@ export default function MapComponent({ selectedLayer }: MapComponentProps) {
   };
 
   return (
-    <div className="w-full">
-      <ArcGISEmbed
-        url={url}
-        title={getTitle(selectedLayer)}
-        height={780}     // fixed height
-        minimalChrome
-        allowFullscreen
-        allowScrolling={true}  // Enable scrolling for all maps, especially StoryMaps
-      />
-      <div className="mt-3 text-xs text-gray-600">
+    <div className="w-full h-full flex flex-col">
+      <div className="flex-1 min-h-0">
+        <ArcGISEmbed
+          url={url}
+          title={getTitle(selectedLayer)}
+          height="100%"     // responsive height
+          minimalChrome
+          allowFullscreen
+          allowScrolling={true}  // Enable scrolling for all maps, especially StoryMaps
+        />
+      </div>
+      <div className="mt-3 text-xs text-gray-600 flex-shrink-0">
         Tip: Make sure this map is shared <b>publicly</b> or to your org group, 
         otherwise the iframe will be blank.
       </div>
