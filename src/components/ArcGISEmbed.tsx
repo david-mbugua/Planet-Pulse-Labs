@@ -8,6 +8,7 @@ type ArcGISEmbedProps = {
   height: number;
   minimalChrome?: boolean;
   allowFullscreen?: boolean;
+  allowScrolling?: boolean;
 };
 
 export default function ArcGISEmbed({ 
@@ -15,7 +16,8 @@ export default function ArcGISEmbed({
   title, 
   height, 
   minimalChrome = false, 
-  allowFullscreen = false 
+  allowFullscreen = false,
+  allowScrolling = true
 }: ArcGISEmbedProps) {
   // Add minimal chrome parameter to URL if requested
   const embedUrl = minimalChrome && !url.includes('?') 
@@ -32,12 +34,14 @@ export default function ArcGISEmbed({
         width="100%"
         height={height}
         frameBorder="0"
-        scrolling="no"
+        scrolling={allowScrolling ? "yes" : "no"}
         allowFullScreen={allowFullscreen}
         className="border-0"
         style={{ 
           minHeight: `${height}px`,
-          backgroundColor: '#f3f4f6' // Light gray background while loading
+          backgroundColor: '#f3f4f6', // Light gray background while loading
+          pointerEvents: 'auto', // Ensure touch/mouse events work
+          overflow: allowScrolling ? 'auto' : 'hidden'
         }}
       />
     </div>
